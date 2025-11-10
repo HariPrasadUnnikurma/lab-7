@@ -5,63 +5,92 @@ const path = require('path');
 
 const app = express();
 
-// parse JSON bodies (for fetch requests sending JSON)
-app.use(express.json());
-// parse urlencoded bodies (in case you later use a plain form POST)
+// parse form and JSON bodies
 app.use(express.urlencoded({ extended: true }));
-
+app.use(express.json());
 app.use(logger('dev'));
 
-// Example random route (optional)
+// serve static files
+const publicPath = path.join(__dirname, 'public');
+app.use(express.static(publicPath));
+
+// small helper: trim + escape basic tags
+const clean = (s) => {
+  const t = (s || '').toString().trim();
+  return t.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+};
+
+// test route
 app.get('/do_a_random', (req, res) => {
   res.send(`Your number is: ${Math.floor(Math.random() * 100) + 1}`);
 });
 
-// POST handler that matches your client-side fetch URL '/madlib'
-app.post('/madlib', (req, res) => {
-  // destructure fields exactly as your client sends them
+// POST handler for the form at /ITC505/lab-7/
+app.post('/ITC505/lab-7/', (req, res) => {
   const { pluralNoun, adjective, verb, noun, conjunction } = req.body || {};
 
-  // Basic validation
-  if (!pluralNoun || !adjective || !verb || !noun || !conjunction) {
-    res.status(400).send('Error: please fill out all fields.');
+  const p = clean(pluralNoun);
+  const a = clean(adjective);
+  const v = clean(verb);
+  const n = clean(noun);
+  const c = clean(conjunction);
+
+  if (!p || !a || !v || !n || !c) {
+    res.status(400).send(`
+      <!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8"/>
+          <title>Submission Failed</title>
+          <meta name="viewport" content="width=device-width,initial-scale=1">
+          <link rel="stylesheet" href="/ITC505/lab-7/styles.css">
+        </head>
+        <body>
+          <main>
+            <h1>Submission Failed</h1>
+            <p>Please fill out ALL fields.</p>
+            <a href="/ITC505/lab-7/">Go Back to Form</a>
+          </main>
+          <footer>
+            <p>Last updated: <span id="lastModified"></span></p>
+          </footer>
+          <script>document.getElementById('lastModified').textContent = document.lastModified;</script>
+        </body>
+      </html>
+    `);
     return;
   }
 
-  // Build the mad lib — plain text (your client expects text)
-  const story = `Once upon a time, there were many ${pluralNoun} that were very ${adjective}. They loved to ${verb} every day. One day, they found a ${noun} ${conjunction} decided to keep it as their treasure.`;
+  const madLibOne = `Once upon a time, there were many ${p} that were very ${a}.`;
+  const madLibTwo = `They loved to ${v} every day. One day, they found a ${n} ${c} decided to keep it as their treasure.`;
+  const madLib = `${madLibOne} ${madLibTwo}`;
 
-  // Return text (not HTML) so your front-end can put it in #result
-  res.type('text').send(story);
+  res.send(`
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <title>Mad Lib Result</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="/ITC505/lab-7/styles.css">
+      </head>
+      <body>
+        <main>
+          <h1>Submission Successful</h1>
+          <p>${madLib}</p>
+          <a href="/ITC505/lab-7/">Go Back to Form</a>
+        </main>
+        <footer>
+          <p>Last updated: <span id="lastModified"></span></p>
+        </footer>
+        <script>document.getElementById('lastModified').textContent = document.lastModified;</script>
+      </body>
+    </html>
+  `);
 });
 
-// Serve static files from public/
-const publicPath = path.join(__dirname, 'public');
-app.use(express.static(publicPath));
-
-// port selection: run `node server.js local` to use 8080 for local dev
-let port = 80;
-if (process.argv[2] === 'local') port = 8080;
-
-app.listen(port, () => console.log(`Ready on http://localhost:${port}`));
-
-
-server.post('/submit', (req, res) => {
-    const { noun, verb } = req.body;
-    if (!noun || !verb ) {
-        res.send(`
-          <h1>Submission Failed</h1>
-          <p>Please fill out ALL fields</p>
-          <a href="/">Go Back to Form</a>
-        `);
-        return;
-    }
-    const madLibOne = `Hello, ${noun} ... ;
-    const madLibTwo = `My favorite activity is to ${verb} ... ;
-    const madLib = `${madLibOne}\n${madLibTwo}`;
-    res.send(`
-      <h1>Submission Successful</h1>
-      <p>${madLib}</p>
-      <a href="/">Go Back to Form</a>
-    `);
+// listen on render's port (or 8080 locally)
+const port = process.env.PORT || 8080;
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
 });
