@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Jai's Mad Lib</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <h1>Jai's Mad Lib</h1>
+  <hr>
+  <h2>Mad Lib Instructions</h2>
+  <form id="mad-lib-form" method="post" action="">
+    <div class="form-group">
+      <label for="plural-noun">Plural Noun:</label>
+      <input id="plural-noun" type="text" name="pluralNoun" required>
+    </div>
+    <div class="form-group">
+      <label for="adjective">Adjective:</label>
+      <input id="adjective" type="text" name="adjective" required>
+    </div>
+    <div class="form-group">
+      <label for="verb">Present Tense Verb:</label>
+      <input id="verb" type="text" name="verb" required>
+    </div>
+    <div class="form-group">
+      <label for="noun">Noun:</label>
+      <input id="noun" type="text" name="noun" required>
+    </div>
+    <div class="form-group">
+      <label for="conjunction">Conjunction:</label>
+      <input id="conjunction" type="text" name="conjunction" required>
+    </div>
+    <button id="mad-lib-btn" type="submit">Submit</button>
+  </form>
+  <hr>
+  <h2>Mad Lib Results</h2>
+  <p id="result"></p>
+  <div> <h3>addendum</h3>
+    <ul>
+      <li>
+        <strong>Event Listener for DOMContentLoaded:</strong>
+        This event listener ensures that the JavaScript code inside it only executes when the DOM (Document Object Model) has been fully loaded, meaning all HTML content, including images and scripts, has been parsed and rendered.
+      </li>
+      <li>
+        </strong>Variables:</strong>
+        These lines define variables that store references to various elements in the HTML document. They use document.getElementById() to get references to specific elements based on their IDs. These references are later used to interact with those elements.
+      </li>
+      <li>
+    <strong>Form Submission Event Listener:</strong>
+        This event listener is attached to the form element (mad-lib-form). It listens for the 'submit' event, which occurs when the user submits the form.
+        event.preventDefault() is called to prevent the default form submission behavior, which would cause the page to reload.
+      </li>
+      <li>
+    <strong>Form Data Retrieval and Fetch Request:</strong>
+        This code creates an object named formData that contains the values of various input fields in the form. These values are retrieved using the value property of each input element.
+      </li>
+      <li>
+    <strong>Handling Fetch Response:</strong>
+        These lines handle the response from the fetch request.
+        response.text() parses the response body as text.
+        The resolved promise returns the data received from the server, which is then used to update the content of an element (resultOutput) to display the Mad Lib story.
+      </li>
+    </ul>
+  </div>
+  <footer>
+        <p>Last updated: 
+            <span id="lastModified"></span>
+        </p>
+    </footer>
+    <script type="text/javascript">
+         var x = document.lastModified;
+         document.getElementById('lastModified').textContent = x;
+    </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var lastModified = document.lastModified;
+      document.getElementById('lastModified').textContent = lastModified;
+
+      var form = document.getElementById('mad-lib-form');
+      var resultOutput = document.getElementById('result');
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        var formData = {
+          pluralNoun: document.getElementById('plural-noun').value,
+          adjective: document.getElementById('adjective').value,
+          verb: document.getElementById('verb').value,
+          noun: document.getElementById('noun').value,
+          conjunction: document.getElementById('conjunction').value
+        };
+
+        var story = `Once upon a time, there were many ${formData.pluralNoun} that were very ${formData.adjective}. They loved to ${formData.verb} every day. One day, they found a ${formData.noun} ${formData.conjunction} decided to keep it as their treasure.`;
+
+        resultOutput.textContent = story;
+      });
+    });
+  </script>
+</body>
+
+</html>
